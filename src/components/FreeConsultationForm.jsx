@@ -16,6 +16,7 @@ const FreeConsultationForm = ({
     tryingDuration: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
 
@@ -74,6 +75,7 @@ const FreeConsultationForm = ({
     if (!isFormValid()) return;
 
     try {
+      setIsSubmitting(true);
       const normalizedSource = (leadSource || '').trim() || 'Google ads';
       const submissionPayload = { 
         firstName: formData.fullName.split(' ')[0] || formData.fullName,
@@ -100,6 +102,7 @@ const FreeConsultationForm = ({
 
       if (data?.duplicate) {
         setIsDuplicate(true);
+        setIsSubmitting(false);
         return;
       }
       if (!resp.ok || !data?.ok) throw new Error(data?.error || 'LeadSquared error');
@@ -122,6 +125,11 @@ const FreeConsultationForm = ({
     } catch (err) {
       console.error('Form submission failed:', err);
       alert('Submission failed. Please try again.');
+      setIsSubmitting(false);
+    } finally {
+      if (!isSubmitted) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -267,14 +275,35 @@ const FreeConsultationForm = ({
 
             <button
               type="submit"
-              disabled={!isFormValid()}
+              disabled={!isFormValid() || isSubmitting}
               className={`w-full inline-flex items-center justify-center rounded-md text-white font-semibold tracking-wide py-3 transition-colors ${
-                isFormValid()
+                isFormValid() && !isSubmitting
                   ? 'bg-[#C62828] hover:bg-[#C62828]/90 cursor-pointer'
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
-              Book Appointment
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Booking...
+                </span>
+              ) : (
+                'Book Appointment'
+              )}
             </button>
           </form>
 
