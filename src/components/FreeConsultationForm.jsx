@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const API_BASE_URL = 'http://localhost:4000';
+const API_BASE_URL = 'https://soi.seedsofinnocens.com';
 
 const FreeConsultationForm = ({
   onClose = null,
