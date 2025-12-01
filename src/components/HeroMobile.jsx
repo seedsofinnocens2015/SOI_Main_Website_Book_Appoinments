@@ -28,13 +28,13 @@ const HeroMobile = ({ className = '', onConsultationClick }) => (
           >
             Book Free Consultation
           </button>
-          <a
+          {/* <a
             href="tel:+919810350512"
             className="flex-1 min-w-[120px] rounded-lg border border-white/40 px-4 py-3 text-center text-sm font-semibold text-white"
             aria-label="Call Seeds of Innocens"
           >
             Call Now
-          </a>
+          </a> */}
         </div>
       </div>
     </div>
