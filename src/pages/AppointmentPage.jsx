@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 const HeroMobile = React.lazy(() => import('../components/HeroMobile'))
 const FloatingConsultButton = React.lazy(() => import('../components/FloatingConsultButton'))
 const FreeConsultationForm = React.lazy(() => import('../components/FreeConsultationForm'))
@@ -6,6 +6,60 @@ const FreeConsultationForm = React.lazy(() => import('../components/FreeConsulta
 
 const AppointmentPage = () => {
   const [isConsultationFormOpen, setIsConsultationFormOpen] = useState(false)
+  const intervalRef = useRef(null)
+
+  // Check if form has been submitted
+  const hasFormBeenSubmitted = () => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('consultationFormSubmitted') === 'true'
+  }
+
+  // Auto-open popup every 5 seconds if form hasn't been submitted
+  useEffect(() => {
+    // Don't start interval if form has already been submitted
+    if (hasFormBeenSubmitted()) return
+
+    // Start interval to open popup every 5 seconds
+    intervalRef.current = setInterval(() => {
+      // Only open if form hasn't been submitted
+      if (!hasFormBeenSubmitted()) {
+        setIsConsultationFormOpen(true)
+      } else {
+        // Clear interval if form has been submitted
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current)
+          intervalRef.current = null
+        }
+      }
+    }, 5000)
+
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
+  // Listen for form submission event
+  useEffect(() => {
+    const handleFormSubmitted = () => {
+      // Clear the interval when form is submitted
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      // Close the modal
+      setIsConsultationFormOpen(false)
+    }
+
+    // Listen for custom event when form is submitted
+    window.addEventListener('consultationFormSubmitted', handleFormSubmitted)
+
+    return () => {
+      window.removeEventListener('consultationFormSubmitted', handleFormSubmitted)
+    }
+  }, [])
 
   return (
     <>

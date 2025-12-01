@@ -117,6 +117,13 @@ const FreeConsultationForm = ({
 
       setIsSubmitted(true);
 
+      // Mark form as submitted in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('consultationFormSubmitted', 'true')
+        // Dispatch custom event to notify parent component
+        window.dispatchEvent(new Event('consultationFormSubmitted'))
+      }
+
       // Auto-refresh after 5 seconds
       setTimeout(() => {
         window.location.reload();
